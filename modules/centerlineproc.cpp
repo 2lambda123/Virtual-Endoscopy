@@ -354,108 +354,108 @@ void centerLineProc::GetcenterlinePoint(int index, double p[3])
     }
 }
 
-//int centerLineProc::Path_GradientDescent()
-//{
-//    const unsigned int Dimension = 3;
-//    typedef unsigned char InputPixelType;
-//    typedef float TransPixelType;
-//    typedef unsigned char OutputPixelType;
-//    typedef itk::Image< InputPixelType, Dimension >                       InputImageType;
-//    typedef itk::Image< TransPixelType, Dimension >                       TransImageType;
-//    typedef itk::Image< OutputPixelType, Dimension>                       OutputImageType;
-//    typedef itk::ImageFileReader< InputImageType >                        ReaderType;
-//    typedef itk::ImageFileWriter< OutputImageType >                       WriterType;
-//    typedef itk::PolyLineParametricPath< Dimension >                      PathType;
-//    typedef itk::SpeedFunctionToPathFilter< TransImageType,PathType >     PathFilterType;
-//    typedef PathFilterType::CostFunctionType::CoordRepType       CoordRepType;
-//    typedef itk::PathIterator< OutputImageType, PathType >                PathIteratorType;
+int centerLineProc::Path_GradientDescent()
+{
+    const unsigned int Dimension = 3;
+    typedef unsigned char InputPixelType;
+    typedef float TransPixelType;
+    typedef unsigned char OutputPixelType;
+    typedef itk::Image< InputPixelType, Dimension >                       InputImageType;
+    typedef itk::Image< TransPixelType, Dimension >                       TransImageType;
+    typedef itk::Image< OutputPixelType, Dimension>                       OutputImageType;
+    typedef itk::ImageFileReader< InputImageType >                        ReaderType;
+    typedef itk::ImageFileWriter< OutputImageType >                       WriterType;
+    typedef itk::PolyLineParametricPath< Dimension >                      PathType;
+    typedef itk::SpeedFunctionToPathFilter< TransImageType,PathType >     PathFilterType;
+    typedef PathFilterType::CostFunctionType::CoordRepType       CoordRepType;
+    typedef itk::PathIterator< OutputImageType, PathType >                PathIteratorType;
 
-//    ReaderType::Pointer reader = ReaderType::New();
-//    reader->SetFileName(InputfileName);
-//    reader->Update();
-//    // Distance transform
-//    typedef itk::SignedDanielssonDistanceMapImageFilter<
-//            InputImageType,
-//            TransImageType> FilterType;
-//    FilterType::Pointer filter = FilterType::New();
-//    filter->SetInput(reader->GetOutput());
-//    // Rescale Distance transform to [0,1]
-//    typedef itk::RescaleIntensityImageFilter<
-//            TransImageType,TransImageType > RescalerType;
-//    RescalerType::Pointer scaler = RescalerType::New();
-//    scaler->SetInput(filter->GetOutput());
-//    scaler->SetOutputMinimum(.0);
-//    scaler->SetOutputMaximum(1.);
-//    scaler->Update();
-//    // get speed function
-//    TransImageType::Pointer speed = scaler->GetOutput();
+    ReaderType::Pointer reader = ReaderType::New();
+    reader->SetFileName(InputfileName);
+    reader->Update();
+    // Distance transform
+    typedef itk::SignedDanielssonDistanceMapImageFilter<
+            InputImageType,
+            TransImageType> FilterType;
+    FilterType::Pointer filter = FilterType::New();
+    filter->SetInput(reader->GetOutput());
+    // Rescale Distance transform to [0,1]
+    typedef itk::RescaleIntensityImageFilter<
+            TransImageType,TransImageType > RescalerType;
+    RescalerType::Pointer scaler = RescalerType::New();
+    scaler->SetInput(filter->GetOutput());
+    scaler->SetOutputMinimum(.0);
+    scaler->SetOutputMaximum(1.);
+    scaler->Update();
+    // get speed function
+    TransImageType::Pointer speed = scaler->GetOutput();
 
-//    // create interpolater
-//    typedef itk::LinearInterpolateImageFunction<TransImageType, CoordRepType>
-//            InterpolatorType;
-//    InterpolatorType::Pointer interp = InterpolatorType::New();
+    // create interpolater
+    typedef itk::LinearInterpolateImageFunction<TransImageType, CoordRepType>
+            InterpolatorType;
+    InterpolatorType::Pointer interp = InterpolatorType::New();
 
-//    // create cost function
-//    PathFilterType::CostFunctionType::Pointer cost =
-//            PathFilterType::CostFunctionType::New();
-//    cost->SetInterpolator(interp);
+    // create cost function
+    PathFilterType::CostFunctionType::Pointer cost =
+            PathFilterType::CostFunctionType::New();
+    cost->SetInterpolator(interp);
 
-//    // create optimizer
-//    typedef itk::GradientDescentOptimizer OptimizerType;
-//    OptimizerType::Pointer optimizer = OptimizerType::New();
-//    optimizer->SetNumberOfIterations( 1000 );
+    // create optimizer
+    typedef itk::GradientDescentOptimizer OptimizerType;
+    OptimizerType::Pointer optimizer = OptimizerType::New();
+    optimizer->SetNumberOfIterations( 1000 );
 
-//    // create path filter
-//    PathFilterType::Pointer pathFilter = PathFilterType::New();
-//    pathFilter->SetInput( speed );
-//    pathFilter->SetCostFunction( cost );
-//    pathFilter->SetOptimizer( optimizer );
-//    pathFilter->SetTerminationValue( 2.0 );
+    // create path filter
+    PathFilterType::Pointer pathFilter = PathFilterType::New();
+    pathFilter->SetInput( speed );
+    pathFilter->SetCostFunction( cost );
+    pathFilter->SetOptimizer( optimizer );
+    pathFilter->SetTerminationValue( 2.0 );
 
-//    // setup path points;
-//    PathFilterType::PointType start, end;
-//    start[0] = 10; start[1] = 100; start[2] = 100;
-//    end[0] = 50; end[1] = 80;end[2] = 200;
+    // setup path points;
+    PathFilterType::PointType start, end;
+    start[0] = 10; start[1] = 100; start[2] = 100;
+    end[0] = 50; end[1] = 80;end[2] = 200;
 
-//    // add path information
-//    PathFilterType::PathInfo info;
-//    info.SetStartPoint( start );
-//    info.SetEndPoint( end );
-//    pathFilter->AddPathInfo( info );
+    // add path information
+    PathFilterType::PathInfo info;
+    info.SetStartPoint( start );
+    info.SetEndPoint( end );
+    pathFilter->AddPathInfo( info );
 
-//    // compute the path
-//    pathFilter->Update();
+    // compute the path
+    pathFilter->Update();
 
-//    // allocate output image
-//    OutputImageType::Pointer output = OutputImageType::New();
-//    output->SetRegions( speed->GetLargestPossibleRegion() );
-//    output->SetSpacing( speed->GetSpacing() );
-//    output->SetOrigin( speed->GetOrigin() );
-//    output->Allocate( );
-//    output->FillBuffer( itk::NumericTraits<OutputPixelType>::Zero );
+    // allocate output image
+    OutputImageType::Pointer output = OutputImageType::New();
+    output->SetRegions( speed->GetLargestPossibleRegion() );
+    output->SetSpacing( speed->GetSpacing() );
+    output->SetOrigin( speed->GetOrigin() );
+    output->Allocate( );
+    output->FillBuffer( itk::NumericTraits<OutputPixelType>::Zero );
 
-//    // get valid path
-//    for(unsigned int i = 0;i< pathFilter->GetNumberOfOutputs();i++){
-//        PathType::Pointer path = pathFilter->GetOutput(i);
-//        //check if path is valid
-//        if(path->GetVertexList()->Size() == 0 ){
-//            std::cout << "WARNING: Path " << (i+1) << " Contains no Points!"
-//                      << std::endl;
-//            continue;
-//        }
-//        PathIteratorType it(output, path);
-//        for(it.GoToBegin(); !it.IsAtEnd(); ++it){
-//            it.Set( itk::NumericTraits<OutputPixelType>::max() );
-//        }
-//    }
+    // get valid path
+    for(unsigned int i = 0;i< pathFilter->GetNumberOfOutputs();i++){
+        PathType::Pointer path = pathFilter->GetOutput(i);
+        //check if path is valid
+        if(path->GetVertexList()->Size() == 0 ){
+            std::cout << "WARNING: Path " << (i+1) << " Contains no Points!"
+                      << std::endl;
+            continue;
+        }
+        PathIteratorType it(output, path);
+        for(it.GoToBegin(); !it.IsAtEnd(); ++it){
+            it.Set( itk::NumericTraits<OutputPixelType>::max() );
+        }
+    }
 
-//    // writer output
-//    WriterType::Pointer writer = WriterType::New();
-//    std::string OutputFilename = "testcenterline.mhd";
-//    writer->SetFileName( OutputFilename );
-//    writer->SetInput( output );
-//    writer->Update();
-//    return EXIT_SUCCESS;
-//    return EXIT_SUCCESS;
-//}
+    // writer output
+    WriterType::Pointer writer = WriterType::New();
+    std::string OutputFilename = "testcenterline.mhd";
+    writer->SetFileName( OutputFilename );
+    writer->SetInput( output );
+    writer->Update();
+    return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
+}
 

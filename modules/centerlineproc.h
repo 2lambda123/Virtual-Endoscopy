@@ -18,9 +18,9 @@
 #include <itkPathIterator.h>
 #include <itkNearestNeighborInterpolateImageFunction.h>
 
-//#include "findpath/itkSpeedFunctionToPathFilter.h"
-//#include "findpath/itkArrivalFunctionToPathFilter.h"
-//#include "findpath/itkIterateNeighborhoodOptimizer.h"
+
+#include "modules/findpath/approach2/itkArrivalFunctionToPathFilter.h"
+#include "modules/findpath/approach2/itkSpeedFunctionToPathFilter.h"
 
 #include <vnl/vnl_math.h>
 #include <itkPoint.h>
@@ -72,7 +72,7 @@ public:
     void ExportCenterkineData(std::string filename);
     void GetcenterlinePoint(int index, double p[3]);
     // ******************************************************
-//    int Path_GradientDescent();
+    int Path_GradientDescent();
     // ******************************************************
 private:
     struct Point3f {

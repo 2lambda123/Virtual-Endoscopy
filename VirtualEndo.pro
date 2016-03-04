@@ -27,7 +27,13 @@ SOURCES += main.cpp\
     modules/showutility.cpp \
     modules/findpath/itkBinaryThinningImageFilter3D.txx \
     modules/displayutils.cpp \
-    modules/globalviewutils.cpp
+    modules/globalviewutils.cpp \
+    modules/findpath/approach2/itkArrivalFunctionToPathFilter.txx \
+    modules/findpath/approach2/itkImageToPathFilter.txx \
+    modules/findpath/approach2/itkIterateNeighborhoodOptimizer.txx \
+    modules/findpath/approach2/itkPhysicalCentralDifferenceImageFunction.txx \
+    modules/findpath/approach2/itkSingleImageCostFunction.txx \
+    modules/findpath/approach2/itkSpeedFunctionToPathFilter.txx
 
 HEADERS  += mainwindow.h \
     tools/fastdef.h \
@@ -41,7 +47,13 @@ HEADERS  += mainwindow.h \
     modules/displayutils.h \
     Test/testpointpicker.h \
     Test/testunit.h \
-    modules/globalviewutils.h
+    modules/globalviewutils.h \
+    modules/findpath/approach2/itkArrivalFunctionToPathFilter.h \
+    modules/findpath/approach2/itkImageToPathFilter.h \
+    modules/findpath/approach2/itkIterateNeighborhoodOptimizer.h \
+    modules/findpath/approach2/itkPhysicalCentralDifferenceImageFunction.h \
+    modules/findpath/approach2/itkSingleImageCostFunction.h \
+    modules/findpath/approach2/itkSpeedFunctionToPathFilter.h
 
 FORMS    += mainwindow.ui
 
