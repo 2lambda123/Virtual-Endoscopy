@@ -1,10 +1,11 @@
 #ifndef DISPLAYUTILS_H
 #define DISPLAYUTILS_H
+//qt part
 #include <QWidget>
 #include <QDebug>
 #include <QString>
 #include <QVTKWidget.h>
-
+// vtk part
 #include <vtkObjectFactory.h>
 #include <vtkSmartPointer.h>
 #include <vtkRenderer.h>
@@ -56,7 +57,13 @@
 
 #include <vtkSphereSource.h>
 
+// std part
 #include <iostream>
+#include <string>
+#include <iomanip>
+#include <map>
+
+// custom part
 #include "tools/tklib.h"
 #include "tools/initials.h"
 #include "tools/fastdef.h"
@@ -237,6 +244,8 @@ public:
     void linemode();
     void framemode();
 
+    // centerline extraction
+    void GetCenterline();
     //roaming
     void OnRoam();
     void SetRoamingStep(int step = 1);
@@ -246,11 +255,11 @@ public:
     void UpdateRoamingCamera();
     //pick point
     void SetPointerPickEnabled(bool enabled=true);
-    // set pathinfomation(start point and end point)
-    void SetPathInfo(double s[3], double e[3]);
 
 
 private:
+    std::map<std::string,std::string> m_filename;
+
     //rendering
     vtkRenderWindow * m_renWindow;
     vtkRenderWindowInteractor * m_iren;
@@ -259,6 +268,7 @@ private:
     vtkSmartPointer< vtkActor > m_stlactor;
     vtkSmartPointer< vtkActor > m_lineactor;
     centerLineProc *m_centerline;
+
     bool has_stl;
     bool has_line;
 

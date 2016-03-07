@@ -155,6 +155,18 @@ void displayUtils::framemode()
     }
 }
 
+void displayUtils::GetCenterline()
+{
+     if(m_PointPickerInteractor->GetEnabled() == false) {
+         std::cout << "Please first set start and end point!" << std::endl;
+         return ;
+     }
+     double s[3],e[3];
+     m_PointPickerInteractor->GetMarkedPoints(s,e);
+     m_centerline->Path_GradientDescent("D:\\3dresearch\\heart-artery\\out\\se1ct1.mhd",s,e);
+     std::cout << "complete centerline extraction!" << std::endl;
+}
+
 void displayUtils::OnRoam()
 {
     // first calculate centerline if hasn't done
@@ -235,12 +247,7 @@ void displayUtils::SetPointerPickEnabled(bool enabled)
     m_PointPickerInteractor->SetPickerEnabled(enabled);
 }
 
-void displayUtils::SetPathInfo(double s[], double e[])
-{
-    if(m_PointPickerInteractor->GetPickerEnabled() == false)
-        return ;
-    m_PointPickerInteractor->GetMarkedPoints(s,e);
-}
+
 
 
 void displayUtils::createSliderTool()

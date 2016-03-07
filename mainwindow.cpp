@@ -376,7 +376,13 @@ void MainWindow::testModule()
 //    m_assistShowUtil->FormMainModel(filename.toStdString());
 //    m_smallqvtk->GetRenderWindow()->Render();
 //    std::cout << " rendering completed" << std::endl;
-}
+    QElapsedTimer t;
+    t.start();
+    m_mainShowUtil->GetCenterline();
+    QMessageBox::information(this,tr("process notify"),
+           QString("test process complete "
+                      "after %1 ms").arg(t.elapsed(),0));
+ }
 
 void MainWindow::on_LineCbx_toggled()
 {

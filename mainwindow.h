@@ -67,7 +67,6 @@ private:
 
     std::vector<OutputImageType::IndexType> localMaxVec;
 
-
     QAction *openSTLAct;
     QAction *exitAct;
     QMenu *fileMenu;
