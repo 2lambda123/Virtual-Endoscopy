@@ -14,11 +14,10 @@ displayUtils::displayUtils(vtkRenderWindow *renWin)
     camera->SetPosition(0,0,20);
     camera->SetFocalPoint(0,0,0);
     vsp(m_light);
-    m_light->SetColor(1.,1.,1.);
-//    m_light->SetColor(1., .0, .0);
-    m_light->SetIntensity(.5);
-    m_light->SetPosition(camera->GetPosition());
-    m_light->SetFocalPoint(camera->GetFocalPoint());
+//    m_light->SetColor(1.,1.,1.);
+//    m_light->SetIntensity(.5);
+//    m_light->SetPosition(camera->GetPosition());
+//    m_light->SetFocalPoint(camera->GetFocalPoint());
 
     m_renderer->AddLight(m_light);
     m_renderer->SetActiveCamera(camera);
@@ -234,6 +233,13 @@ void displayUtils::UpdateRoamingCamera()
 void displayUtils::SetPointerPickEnabled(bool enabled)
 {
     m_PointPickerInteractor->SetPickerEnabled(enabled);
+}
+
+void displayUtils::SetPathInfo(double s[], double e[])
+{
+    if(m_PointPickerInteractor->GetPickerEnabled() == false)
+        return ;
+    m_PointPickerInteractor->GetMarkedPoints(s,e);
 }
 
 

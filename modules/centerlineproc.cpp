@@ -262,7 +262,7 @@ int centerLineProc::getSignedDistanceMap_Mul()
 
 }
 
-void centerLineProc::GetThin3dImg()
+void centerLineProc::Path_Thin3dImg()
 {
     typedef itk::ImageFileReader< InputImageType> ReaderType;
     ReaderType::Pointer reader = ReaderType::New();
@@ -325,6 +325,7 @@ void centerLineProc::GetThin3dImg()
 
 }
 
+
 int centerLineProc::GetCenterlinePointNums()
 {
     return MinPoints.size();
@@ -354,44 +355,44 @@ void centerLineProc::GetcenterlinePoint(int index, double p[3])
     }
 }
 
-int centerLineProc::Path_GradientDescent()
+int centerLineProc::Path_GradientDescent(std::string filename, double ps[], double pe[])
 {
     const unsigned int Dimension = 3;
     typedef unsigned char InputPixelType;
-    typedef float TransPixelType;
+    typedef float InterPixelType;
     typedef unsigned char OutputPixelType;
     typedef itk::Image< InputPixelType, Dimension >                       InputImageType;
-    typedef itk::Image< TransPixelType, Dimension >                       TransImageType;
+    typedef itk::Image< InterPixelType, Dimension >                       InterImageType;
     typedef itk::Image< OutputPixelType, Dimension>                       OutputImageType;
     typedef itk::ImageFileReader< InputImageType >                        ReaderType;
     typedef itk::ImageFileWriter< OutputImageType >                       WriterType;
     typedef itk::PolyLineParametricPath< Dimension >                      PathType;
-    typedef itk::SpeedFunctionToPathFilter< TransImageType,PathType >     PathFilterType;
+    typedef itk::SpeedFunctionToPathFilter< InterImageType,PathType >     PathFilterType;
     typedef PathFilterType::CostFunctionType::CoordRepType       CoordRepType;
     typedef itk::PathIterator< OutputImageType, PathType >                PathIteratorType;
 
     ReaderType::Pointer reader = ReaderType::New();
-    reader->SetFileName(InputfileName);
+    reader->SetFileName(filename);
     reader->Update();
     // Distance transform
     typedef itk::SignedDanielssonDistanceMapImageFilter<
             InputImageType,
-            TransImageType> FilterType;
+            InterImageType> FilterType;
     FilterType::Pointer filter = FilterType::New();
     filter->SetInput(reader->GetOutput());
     // Rescale Distance transform to [0,1]
     typedef itk::RescaleIntensityImageFilter<
-            TransImageType,TransImageType > RescalerType;
+            InterImageType,InterImageType > RescalerType;
     RescalerType::Pointer scaler = RescalerType::New();
     scaler->SetInput(filter->GetOutput());
     scaler->SetOutputMinimum(.0);
     scaler->SetOutputMaximum(1.);
     scaler->Update();
     // get speed function
-    TransImageType::Pointer speed = scaler->GetOutput();
+    InterImageType::Pointer speed = scaler->GetOutput();
 
     // create interpolater
-    typedef itk::LinearInterpolateImageFunction<TransImageType, CoordRepType>
+    typedef itk::LinearInterpolateImageFunction<InterImageType, CoordRepType>
             InterpolatorType;
     InterpolatorType::Pointer interp = InterpolatorType::New();
 
@@ -414,8 +415,10 @@ int centerLineProc::Path_GradientDescent()
 
     // setup path points;
     PathFilterType::PointType start, end;
-    start[0] = 10; start[1] = 100; start[2] = 100;
-    end[0] = 50; end[1] = 80;end[2] = 200;
+
+    start[0] = ps[0]; start[1] = ps[1]; start[2] = ps[2];
+    end[0] = pe[0]; end[1] = pe[1];end[2] = pe[2];
+
 
     // add path information
     PathFilterType::PathInfo info;
@@ -455,7 +458,6 @@ int centerLineProc::Path_GradientDescent()
     writer->SetFileName( OutputFilename );
     writer->SetInput( output );
     writer->Update();
-    return EXIT_SUCCESS;
     return EXIT_SUCCESS;
 }
 

@@ -112,6 +112,10 @@ public:
         m_PickedPointsCnt = 0;
     }
 
+    bool GetPickerEnabled()
+    {
+        return m_enabled;
+    }
     virtual void OnKeyPress(){
         vtkRenderWindowInteractor *rwi = this->Interactor;
 
@@ -242,6 +246,9 @@ public:
     void UpdateRoamingCamera();
     //pick point
     void SetPointerPickEnabled(bool enabled=true);
+    // set pathinfomation(start point and end point)
+    void SetPathInfo(double s[3], double e[3]);
+
 
 private:
     //rendering

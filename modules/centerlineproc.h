@@ -18,7 +18,7 @@
 #include <itkPathIterator.h>
 #include <itkNearestNeighborInterpolateImageFunction.h>
 
-
+// 3d part includes
 #include "modules/findpath/approach2/itkArrivalFunctionToPathFilter.h"
 #include "modules/findpath/approach2/itkSpeedFunctionToPathFilter.h"
 
@@ -63,7 +63,7 @@ public:
     int getDistanceMap();
     int getSignedDistanceMap_Sin(); //初试版本，寻找一条中心线；
     int getSignedDistanceMap_Mul(); //寻找多条中心线；
-    void GetThin3dImg();
+
     std::vector<OutputImageType::PointType>& getpoints()
     {
         return MinPoints;
@@ -71,8 +71,12 @@ public:
     int GetCenterlinePointNums();
     void ExportCenterkineData(std::string filename);
     void GetcenterlinePoint(int index, double p[3]);
+    // *******************************************************
+    void Path_Thin3dImg();
+    // ********************************************************
+
     // ******************************************************
-    int Path_GradientDescent();
+    int Path_GradientDescent(std::string filename, double ps[3], double pe[3]);
     // ******************************************************
 private:
     struct Point3f {

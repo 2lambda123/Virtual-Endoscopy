@@ -266,7 +266,7 @@ void MainWindow::processImg()
         //1.--distance transform method
         //clnProc -> getDistanceMap();
         //2.--3d Binary thinning method
-//        clnProc -> GetThin3dImg();
+//        clnProc -> Path_Thin3dImg();
 //        leftshowUtil->centerLnDis(clnProc->getpoints());
         //3.--signed distance transform method
         clnProc -> getSignedDistanceMap_Mul();
