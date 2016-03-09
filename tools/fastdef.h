@@ -14,5 +14,9 @@ inline void vsp(vtkSmartPointer<T> &var)
     vtkSmartPointer<T> temp = vtkSmartPointer<T>::New();
     var = temp;
 }
+
+struct Point3f {
+    double x, y, z;
+};
 #endif // FASTDEF_H
 

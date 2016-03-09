@@ -62,6 +62,7 @@
 #include <string>
 #include <iomanip>
 #include <map>
+#include <vector>
 
 // custom part
 #include "tools/tklib.h"
@@ -153,9 +154,9 @@ private:
     bool m_enabled;
     int m_PickedPointsCnt;
 
-    struct Point3f{
-      double x, y, z;
-    };
+//    struct Point3f{
+//      double x, y, z;
+//    };
     Point3f m_pbeg;
     Point3f m_pend;
 
@@ -256,9 +257,12 @@ public:
     //pick point
     void SetPointerPickEnabled(bool enabled=true);
 
+    //draw centerline points
+    void ShowCenterPoints(std::vector<Point3f> &CenterPoints);
+
 
 private:
-    std::map<std::string,std::string> m_filename;
+//    std::map<std::string,std::string> m_filename;
 
     //rendering
     vtkRenderWindow * m_renWindow;
@@ -274,6 +278,7 @@ private:
 
     int m_currentRoamingIndex;
     int m_currentRoamingStep;
+
     vtkSmartPointer< vtkLight > m_light;
     //releted slider
     vtkSmartPointer< vtkSliderRepresentation2D > sliderRep;

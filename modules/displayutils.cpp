@@ -10,9 +10,9 @@ displayUtils::displayUtils(vtkRenderWindow *renWin)
     vsp(m_stlactor);
     vsp(m_lineactor);
 
-    Instantiate(camera,vtkCamera);
-    camera->SetPosition(0,0,20);
-    camera->SetFocalPoint(0,0,0);
+//    Instantiate(camera,vtkCamera);
+//    camera->SetPosition(0,0,20);
+//    camera->SetFocalPoint(0,0,0);
     vsp(m_light);
 //    m_light->SetColor(1.,1.,1.);
 //    m_light->SetIntensity(.5);
@@ -20,7 +20,7 @@ displayUtils::displayUtils(vtkRenderWindow *renWin)
 //    m_light->SetFocalPoint(camera->GetFocalPoint());
 
     m_renderer->AddLight(m_light);
-    m_renderer->SetActiveCamera(camera);
+//    m_renderer->SetActiveCamera(camera);
     m_renWindow->AddRenderer(m_renderer);
     m_iren = renWin->GetInteractor();
 
@@ -157,10 +157,6 @@ void displayUtils::framemode()
 
 void displayUtils::GetCenterline()
 {
-     if(m_PointPickerInteractor->GetEnabled() == false) {
-         std::cout << "Please first set start and end point!" << std::endl;
-         return ;
-     }
      double s[3],e[3];
      m_PointPickerInteractor->GetMarkedPoints(s,e);
      m_centerline->Path_GradientDescent("D:\\3dresearch\\heart-artery\\out\\se1ct1.mhd",s,e);
@@ -245,6 +241,49 @@ void displayUtils::UpdateRoamingCamera()
 void displayUtils::SetPointerPickEnabled(bool enabled)
 {
     m_PointPickerInteractor->SetPickerEnabled(enabled);
+}
+
+void displayUtils::ShowCenterPoints(std::vector<Point3f> &CenterPoints)
+{
+    int num = CenterPoints.size();
+    Instantiate(points,vtkPoints);
+    Instantiate(vertices,vtkCellArray);
+    Instantiate(lines,vtkCellArray);
+    Instantiate(line,vtkLine);
+    Instantiate(colors,vtkUnsignedCharArray);
+    colors->SetNumberOfComponents(3);
+    //green display each point.
+    unsigned char blue[3] = {0,0,255};
+    std::vector<Point3f>::const_iterator it = CenterPoints.begin();
+
+    for(unsigned int i = 0;i < num && it != CenterPoints.end();i++,it++){
+        vtkIdType pid[1];
+        pid[0] = points->InsertNextPoint((*it).x,(*it).y,(*it).z);
+        colors->InsertNextTupleValue(blue);
+        vertices->InsertNextCell(1,pid);
+        if(i < num-1){
+            line->GetPointIds()->SetId(0,i);
+            line->GetPointIds()->SetId(1,i+1);
+            lines->InsertNextCell(line);
+        }
+
+    }
+
+    Instantiate(polydata,vtkPolyData);
+    polydata->SetPoints(points);
+    polydata->SetVerts(vertices);
+    polydata->SetLines(lines);
+    polydata->GetPointData()->SetScalars(colors);
+
+    Instantiate(cenmapper,vtkPolyDataMapper);
+    cenmapper->SetInputData(polydata);
+
+    m_lineactor->SetMapper(cenmapper);
+    has_line = true;
+
+    m_renderer->AddActor(m_lineactor);
+
+    m_renWindow->Render();
 }
 
 

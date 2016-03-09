@@ -36,6 +36,7 @@
 #include <vector>
 //    customized includes
 #include "tools/initials.h"
+#include "tools/fastdef.h"
 #include "modules/findpath/itkBinaryThinningImageFilter3D.h"
 
 //const unsigned int dimension = 3;
@@ -77,11 +78,9 @@ public:
 
     // ******************************************************
     int Path_GradientDescent(std::string filename, double ps[3], double pe[3]);
+    std::vector<Point3f> CenterPoints;
     // ******************************************************
 private:
-    struct Point3f {
-        double x, y, z;
-    };
 
     bool CenterLineFlag;  // has centerline?
     //vector for local-max index of OutputImage

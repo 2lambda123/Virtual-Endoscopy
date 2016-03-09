@@ -404,7 +404,7 @@ int centerLineProc::Path_GradientDescent(std::string filename, double ps[], doub
     // create optimizer
     typedef itk::GradientDescentOptimizer OptimizerType;
     OptimizerType::Pointer optimizer = OptimizerType::New();
-    optimizer->SetNumberOfIterations( 1000 );
+    optimizer->SetNumberOfIterations( 500 );
 
     // create path filter
     PathFilterType::Pointer pathFilter = PathFilterType::New();
@@ -447,8 +447,12 @@ int centerLineProc::Path_GradientDescent(std::string filename, double ps[], doub
             continue;
         }
         PathIteratorType it(output, path);
+        std::cout << "Successfully find path: " << (i+1) << std::endl;
         for(it.GoToBegin(); !it.IsAtEnd(); ++it){
             it.Set( itk::NumericTraits<OutputPixelType>::max() );
+            std::cout << (it.GetIndex())[0] << ", "
+                       << (it.GetIndex())[1] << ", "
+                       << (it.GetIndex())[2] << "\n";
         }
     }
 
