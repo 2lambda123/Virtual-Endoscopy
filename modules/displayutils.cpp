@@ -1,6 +1,12 @@
 #include "displayutils.h"
 #include <iostream>
 #include <vtkCamera.h>
+#include <vtkJPEGReader.h>
+#include <vtkTexture.h>
+#include <vtkTextureMapToCylinder.h>
+#include <vtkTextureMapToPlane.h>
+#include <vtkTextureMapToSphere.h>
+#include <vtkTransformTextureCoords.h>
 vtkStandardNewMacro(CusInteractorStylePickPoint);
 
 displayUtils::displayUtils(vtkRenderWindow *renWin)
@@ -42,11 +48,27 @@ void displayUtils::OpenSegmentModel(std::string filename)
     Instantiate(reader,vtkSTLReader);
     reader -> SetFileName(filename.c_str());
     reader -> Update();
+//  *****************add texture for model********************
+    Instantiate(tmapper,vtkTextureMapToSphere);
+    tmapper -> SetInputConnection(reader -> GetOutputPort());
+//    tmapper -> PreventSeamOn();
+    Instantiate(xform,vtkTransformTextureCoords);
+    xform -> SetInputConnection(tmapper->GetOutputPort());
+    xform -> SetScale(4,4,1);
+    Instantiate(jpgreader,vtkJPEGReader);
+    jpgreader -> SetFileName("D:\\3dresearch\\QtItkVtk\\test\\VirtualEndo\\res\\texture2.jpg");
+    jpgreader -> Update();
+    Instantiate(texture,vtkTexture);
+    texture -> SetInputConnection(jpgreader->GetOutputPort());
+    texture -> InterpolateOn();
+//  ************************************************************
+
 
     //build connection
     Instantiate(mapper,vtkPolyDataMapper);
-    mapper -> SetInputConnection(reader -> GetOutputPort());
+    mapper -> SetInputConnection(xform -> GetOutputPort());
     m_stlactor -> SetMapper(mapper);
+    m_stlactor -> SetTexture(texture);
  //   m_stlactor->GetProperty()->SetColor(1., .0, .0);
     sliderWidget->EnabledOn();
     has_stl = true;
