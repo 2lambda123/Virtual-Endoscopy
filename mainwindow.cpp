@@ -276,78 +276,14 @@ void MainWindow::processImg()
         ui -> LineCbx -> setChecked(true);
     }
 
-//    clnproc = new centerLineProc;
-//    if(clnproc)
-//        clnproc -> getDistanceMap();
 
-//    try{
-//        typedef itk::ImageFileReader< InputImageType> ReaderType;
-
-//        typedef itk::ImageFileWriter< OutputImageType > WriterType;
-//        ReaderType::Pointer reader = ReaderType::New();
-
-//        //        WriterType::Pointer writer = WriterType::New();
-
-//        std::string input("D:\\3dresearch\\heart-artery\\out\\se1ct1.mhd");
-//        reader->SetFileName(input);
-
-//        //        writer->SetFileName(OutputmapName);
-
-//        FilterType::Pointer filter = FilterType::New();
-//        filter->SetInput(reader->GetOutput());
-
-//        typedef itk::RescaleIntensityImageFilter<
-//                OutputImageType,OutputImageType> RescalerType;
-//        RescalerType::Pointer scaler = RescalerType::New();
-
-//        scaler->SetInput(filter->GetOutput());
-//        scaler->SetOutputMinimum(0);
-//        scaler->SetOutputMaximum(65535);
-//        OutputImageType::Pointer outImg = scaler->GetOutput();
-//        scaler->Update();
-//        std::ofstream out("localmax.txt");
-//        if(out.is_open())
-//            out << input << std::endl;
 // // ***********************************************************************************
 // //       how to interate an 3d image
 // //       reference to:
 // //       http://sourcecodebrowser.com/insighttoolkit/3.16.0/itk_image_slice_iterator_test_8cxx.html
 // //       http://l3mmings.blogspot.com/2010/08/slices-stacks-and-itk.html
 // // *************************************************************************************
-//        typedef itk::ImageSliceConstIteratorWithIndex< OutputImageType > sliceinterator;
-//        sliceinterator sliceit(outImg,outImg->GetLargestPossibleRegion());
-//        sliceit.SetFirstDirection(0); // 0 -x
-//        sliceit.SetSecondDirection(1); // 1 - y
-//        localMaxVec.clear();
-//        for(sliceit.GoToBegin();!sliceit.IsAtEnd();sliceit.NextSlice()){
-//            OutputImageType::PixelType maxval = 0;
-//            OutputImageType::IndexType maxindex = sliceit.GetIndex();
-//            while(!sliceit.IsAtEndOfSlice()){
-//                while(!sliceit.IsAtEndOfLine()){
-//                    if(sliceit.Get() > maxval){
-//                        maxval = sliceit.Get();
-//                        maxindex = sliceit.GetIndex();
-//                    }
-//                    ++sliceit;
-//                }
-//                sliceit.NextLine();
-//            }
-//            localMaxVec.push_back(maxindex); // get local max position of a slice
-//            if(out.is_open())
-//                out << maxindex[0] << ", "
-//                                   << maxindex[1] << ", "
-//                                   << maxindex[2] << std::endl;
 
-//        }
-//        scaler -> Delete();
-//        filter -> Delete();
-//        reader -> Delete();
-//    }
-//    catch(itk::ExceptionObject &exp)
-//    {
-//        std::cerr << "Exception caught !" << endl;
-//        return ;
-//    }
     QMessageBox::information(this,tr("process notify"),
            QString("successfully extract centerline "
                       "after take %1 ms").arg(t.elapsed(),0));
@@ -379,6 +315,7 @@ void MainWindow::testModule()
     QElapsedTimer t;
     t.start();
     m_mainShowUtil->GetCenterline();
+    m_mainShowUtil->DrawCenterLine();
     QMessageBox::information(this,tr("process notify"),
            QString("test process complete "
                       "after %1 ms").arg(t.elapsed(),0));

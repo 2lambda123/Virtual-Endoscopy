@@ -179,11 +179,13 @@ void displayUtils::framemode()
 
 void displayUtils::GetCenterline()
 {
-     double s[3],e[3];
-     m_PointPickerInteractor->GetMarkedPoints(s,e);
-     m_centerline->Path_GradientDescent("D:\\3dresearch\\heart-artery\\out\\se1ct1.mhd",s,e);
-     std::cout << "complete centerline extraction!" << std::endl;
+//     double s[3],e[3];
+//     m_PointPickerInteractor->GetMarkedPoints(s,e);
+//     m_centerline->Path_GradientDescent("D:\\3dresearch\\heart-artery\\out\\se1ct1.mhd",s,e);
+//     std::cout << "complete centerline extraction!" << std::endl;
+    m_centerline->Path_Thin3dImg("D:\\3dresearch\\heart-artery\\out\\se1ct1.mhd");
 }
+
 
 void displayUtils::OnRoam()
 {
@@ -306,6 +308,11 @@ void displayUtils::ShowCenterPoints(std::vector<Point3f> &CenterPoints)
     m_renderer->AddActor(m_lineactor);
 
     m_renWindow->Render();
+}
+
+void displayUtils::DrawCenterLine()
+{
+    ShowCenterPoints(m_centerline->CenterPoints);
 }
 
 

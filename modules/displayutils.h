@@ -259,6 +259,7 @@ public:
 
     //draw centerline points
     void ShowCenterPoints(std::vector<Point3f> &CenterPoints);
+    void DrawCenterLine();
 
 
 private:

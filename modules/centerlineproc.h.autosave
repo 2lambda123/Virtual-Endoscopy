@@ -9,6 +9,7 @@
 #include <itkRescaleIntensityImageFilter.h>
 #include <itkImageSliceConstIteratorWithIndex.h>
 #include <itkGradientMagnitudeImageFilter.h>
+#include <itkMedianImageFilter.h>
 
 #include <itkNumericTraits.h>
 #include <itkPolyLineParametricPath.h>
