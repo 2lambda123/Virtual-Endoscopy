@@ -269,7 +269,7 @@ void MainWindow::processImg()
 //        clnProc -> Path_Thin3dImg();
 //        leftshowUtil->centerLnDis(clnProc->getpoints());
         //3.--signed distance transform method
-        clnProc -> getSignedDistanceMap_Mul();
+        clnProc -> getSignedDistanceMap_Mul(m_mainShowUtil->GetRawFilename());
         m_mainShowUtil->centerLnDis(clnProc->getpoints());
         //leftshowUtil->centerLnDis(clnProc->getpoints());
         ui -> LineCbx -> setEnabled(true);
@@ -316,6 +316,7 @@ void MainWindow::testModule()
     t.start();
     m_mainShowUtil->GetCenterline();
     m_mainShowUtil->DrawCenterLine();
+//    m_mainShowUtil->TestDistanceTransform();
     QMessageBox::information(this,tr("process notify"),
            QString("test process complete "
                       "after %1 ms").arg(t.elapsed(),0));

@@ -43,8 +43,18 @@ displayUtils::displayUtils(vtkRenderWindow *renWin)
     m_currentRoamingStep = 2;
 }
 
+std::string displayUtils::GetRawFilename()
+{
+    return m_filename.second;
+}
+
 void displayUtils::OpenSegmentModel(std::string filename)
 {
+    //prepare input name(.stl and .mhd)
+    m_filename.first = filename;
+    int size = filename.size();
+    m_filename.second = (m_filename.first).substr(0,size - 3) + "mhd";
+    std::cout << "the mhd filename is " << m_filename.second << std::endl;
     Instantiate(reader,vtkSTLReader);
     reader -> SetFileName(filename.c_str());
     reader -> Update();
@@ -177,13 +187,18 @@ void displayUtils::framemode()
     }
 }
 
+void displayUtils::TestDistanceTransform()
+{
+    m_centerline->getDistanceMap(GetRawFilename());
+}
+
 void displayUtils::GetCenterline()
 {
-//     double s[3],e[3];
-//     m_PointPickerInteractor->GetMarkedPoints(s,e);
-//     m_centerline->Path_GradientDescent("D:\\3dresearch\\heart-artery\\out\\se1ct1.mhd",s,e);
-//     std::cout << "complete centerline extraction!" << std::endl;
-    m_centerline->Path_Thin3dImg("D:\\3dresearch\\heart-artery\\out\\se1ct1.mhd");
+     double s[3],e[3];
+     m_PointPickerInteractor->GetMarkedPoints(s,e);
+     m_centerline->Path_GradientDescent(GetRawFilename(),s,e);
+     std::cout << "complete centerline extraction!" << std::endl;
+//    m_centerline->Path_Thin3dImg("D:\\3dresearch\\heart-artery\\out\\se1ct1.mhd");
 }
 
 
@@ -191,7 +206,7 @@ void displayUtils::OnRoam()
 {
     // first calculate centerline if hasn't done
     if(m_centerline->GetCenterlinePointNums() == 0){
-        m_centerline->getSignedDistanceMap_Sin();
+        m_centerline->getSignedDistanceMap_Sin(GetRawFilename());
         centerLnDis(m_centerline->getpoints());
     }
     m_currentRoamingIndex = 0;

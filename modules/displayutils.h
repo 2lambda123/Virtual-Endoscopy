@@ -63,6 +63,7 @@
 #include <iomanip>
 #include <map>
 #include <vector>
+#include <utility>
 
 // custom part
 #include "tools/tklib.h"
@@ -233,6 +234,8 @@ public:
     {
         return m_renderer;
     }
+
+    std::string GetRawFilename();
     void OpenSegmentModel(std::string filename);
     void OpenCenterLineModel(std::string filename);
     void centerLnDis(std::vector<OutputImageType::PointType> &inpoints);
@@ -246,6 +249,7 @@ public:
     void framemode();
 
     // centerline extraction
+    void TestDistanceTransform();
     void GetCenterline();
     //roaming
     void OnRoam();
@@ -263,7 +267,7 @@ public:
 
 
 private:
-//    std::map<std::string,std::string> m_filename;
+    std::pair<std::string,std::string> m_filename;
 
     //rendering
     vtkRenderWindow * m_renWindow;

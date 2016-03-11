@@ -9,6 +9,9 @@
 #include <itkRescaleIntensityImageFilter.h>
 #include <itkImageSliceConstIteratorWithIndex.h>
 #include <itkGradientMagnitudeImageFilter.h>
+#include <itkInvertIntensityImageFilter.h>
+#include <itkThresholdImageFilter.h>
+#include <itkTimeProbe.h>
 
 #include <itkNumericTraits.h>
 #include <itkPolyLineParametricPath.h>
@@ -62,9 +65,9 @@ public:
 //    {
 //        return new centerLineProc;
 //    }
-    int getDistanceMap();
-    int getSignedDistanceMap_Sin(); //初试版本，寻找一条中心线；
-    int getSignedDistanceMap_Mul(); //寻找多条中心线；
+    int getDistanceMap(std::string filename);
+    int getSignedDistanceMap_Sin(std::string filename); //初试版本，寻找一条中心线；
+    int getSignedDistanceMap_Mul(std::string filename); //寻找多条中心线；
 
     std::vector<OutputImageType::PointType>& getpoints()
     {
@@ -90,12 +93,6 @@ private:
     //vector for local-max physical point of outputImage
     std::vector<OutputImageType::PointType> MinPoints;
 
-    std::string InputfileName;
-//    char *OutputmapName = 0;
-    void setInput(std::string input)
-    {
-        InputfileName = input;
-    }
     void clear()
     {
         localMinVec.clear();

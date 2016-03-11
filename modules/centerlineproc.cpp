@@ -9,98 +9,111 @@
 #include "itksys/SystemTools.hxx"
 centerLineProc::centerLineProc():CenterLineFlag(false)
 {
-    setInput(std::string("D:\\3dresearch\\heart-artery\\out\\se1ct1.mhd"));
     clear();
-
 }
 
-int centerLineProc::getDistanceMap()
+int centerLineProc::getDistanceMap(std::string filename)
 {
+    if(filename.empty())    return EXIT_FAILURE;
+    const unsigned int Dimension = 3;
+    typedef unsigned char InputPixelType;
+    typedef float InterPixelType;
+    typedef unsigned char OutputPixelType;
+    typedef itk::Image< InputPixelType, Dimension >                       InputImageType;
+    typedef itk::Image< InterPixelType, Dimension >                       InterImageType;
+    typedef itk::Image< OutputPixelType, Dimension>                       OutputImageType;
+    typedef itk::ImageFileReader< InputImageType >                        ReaderType;
     try{
-        typedef itk::ImageFileReader< InputImageType > ReaderType;
-//        typedef itk::ImageFileWriter< OutputImageType > WriterType;
         ReaderType::Pointer reader = ReaderType::New();
-//        WriterType::Pointer writer = WriterType::New();
-        reader->SetFileName(InputfileName);
-//        writer->SetFileName(OutputmapName);
-
-        //**************test spacing***********************
-        InputImageType::Pointer inImg = reader->GetOutput();
+        reader->SetFileName(filename);
         reader->Update();
-        InputImageType::SpacingType isp = inImg->GetSpacing();
-        std::cout << isp[0] << " ," << isp[1] << " ," << isp[2] << std::endl;
-        InputImageType::PointType origin = inImg->GetOrigin();
-        std::cout << origin[0] << " ," << origin[1] << " ," << origin[2] << std::endl;
-
-        FilterType::Pointer filter = FilterType::New();
-        filter->SetInput(reader->GetOutput());
-
+        typedef itk::SignedDanielssonDistanceMapImageFilter<
+                InputImageType,
+                InterImageType> FilterType;
+        FilterType::Pointer dft = FilterType::New();
+        dft->SetInput(reader->GetOutput());
+        //**************test spacing***********************
         typedef itk::RescaleIntensityImageFilter<
-                OutputImageType,OutputImageType > RescalerType;
+                InterImageType,InterImageType > RescalerType;
         RescalerType::Pointer scaler = RescalerType::New();
 
-        scaler->SetInput(filter->GetOutput());
-        scaler->SetOutputMinimum(0);
-        scaler->SetOutputMaximum(65535);
-        OutputImageType::Pointer outImg = scaler->GetOutput();
+        scaler->SetInput(dft->GetOutput());
+        scaler->SetOutputMinimum(0.0);
+        scaler->SetOutputMaximum(1.0);
+        InterImageType::Pointer output = scaler->GetOutput();
         scaler->Update();
         std::ofstream out("localmax.txt");
         if(out.is_open())
-            out << InputfileName << std::endl;
+            out << filename << std::endl;
 //       how to interate an 3d image
 //       reference to:
 //       http://sourcecodebrowser.com/insighttoolkit/3.16.0/itk_image_slice_iterator_test_8cxx.html
 //       http://l3mmings.blogspot.com/2010/08/slices-stacks-and-itk.html
-        typedef itk::ImageSliceConstIteratorWithIndex< OutputImageType > sliceinterator;
-        sliceinterator sliceit(outImg,outImg->GetLargestPossibleRegion());
+        typedef itk::ImageSliceConstIteratorWithIndex< InterImageType > sliceinterator;
+        sliceinterator sliceit(output,output->GetLargestPossibleRegion());
         sliceit.SetFirstDirection(0); // 0 -x
         sliceit.SetSecondDirection(1); // 1 - y
         sliceit.GoToBegin();
-        OutputImageType::IndexType preminindex = sliceit.GetIndex();
-        for(int i = 0 ;!sliceit.IsAtEnd();i++,sliceit.NextSlice()){
-            OutputImageType::PixelType minval = sliceit.Get();
-            OutputImageType::IndexType minindex = sliceit.GetIndex();
-            ++sliceit;
+        int i = 0;
+        for(; i < 185; i++){
+            sliceit.NextSlice();
+        }
+        for(; !sliceit.IsAtEnd() && i < 190;sliceit.NextSlice(),i++){
+            out << "Line No: " << i << "\n";
             while(!sliceit.IsAtEndOfSlice()){
                 while(!sliceit.IsAtEndOfLine()){
-                    if(sliceit.Get() < minval){
-
-                        minval = sliceit.Get();
-                        minindex = sliceit.GetIndex();
-                    }
+                    out << sliceit.Get() << "\t";
                     ++sliceit;
                 }
                 sliceit.NextLine();
             }
-            if (i == 0){
-                preminindex = minindex;
-            }
-            else{
-                if(abs(preminindex[0] - minindex[0]) > 20
-                        || abs(preminindex[1] - minindex[1]) > 20){
-                    //change too sharply,use last minindex;
-                    minindex[0] = preminindex[0];
-                    minindex[1] = preminindex[1];
-                    minindex[2] = preminindex[2] + 1;
-                }
-                //update  minindex of last slice;
-                preminindex[0] = minindex[0];
-                preminindex[1] = minindex[1];
-                preminindex[2] = minindex[2] - 1;
-            }
-            OutputImageType::PointType minpoint;
-            outImg->TransformIndexToPhysicalPoint(minindex,minpoint);
-            localMinVec.push_back(minindex); // get local min position of a slice
-            MinPoints.push_back(minpoint);
-            if(out.is_open())
-                out << minindex[0] << ", "
-                                   << minindex[1] << ", "
-                                   << minindex[2] << "<----||---->"
-                                   << minpoint[0] << ", "
-                                   << minpoint[1] << ", "
-                                   << minpoint[2] << std::endl;
-
+            out << "**************************" << std::endl;
         }
+//        OutputImageType::IndexType preminindex = sliceit.GetIndex();
+//        for(int i = 0 ;!sliceit.IsAtEnd();i++,sliceit.NextSlice()){
+//            OutputImageType::PixelType minval = sliceit.Get();
+//            OutputImageType::IndexType minindex = sliceit.GetIndex();
+//            ++sliceit;
+//            while(!sliceit.IsAtEndOfSlice()){
+//                while(!sliceit.IsAtEndOfLine()){
+//                    if(sliceit.Get() < minval){
+
+//                        minval = sliceit.Get();
+//                        minindex = sliceit.GetIndex();
+//                    }
+//                    ++sliceit;
+//                }
+//                sliceit.NextLine();
+//            }
+//            if (i == 0){
+//                preminindex = minindex;
+//            }
+//            else{
+//                if(abs(preminindex[0] - minindex[0]) > 20
+//                        || abs(preminindex[1] - minindex[1]) > 20){
+//                    //change too sharply,use last minindex;
+//                    minindex[0] = preminindex[0];
+//                    minindex[1] = preminindex[1];
+//                    minindex[2] = preminindex[2] + 1;
+//                }
+//                //update  minindex of last slice;
+//                preminindex[0] = minindex[0];
+//                preminindex[1] = minindex[1];
+//                preminindex[2] = minindex[2] - 1;
+//            }
+//            OutputImageType::PointType minpoint;
+//            outImg->TransformIndexToPhysicalPoint(minindex,minpoint);
+//            localMinVec.push_back(minindex); // get local min position of a slice
+//            MinPoints.push_back(minpoint);
+//            if(out.is_open())
+//                out << minindex[0] << ", "
+//                                   << minindex[1] << ", "
+//                                   << minindex[2] << "<----||---->"
+//                                   << minpoint[0] << ", "
+//                                   << minpoint[1] << ", "
+//                                   << minpoint[2] << std::endl;
+
+//        }
 
         CenterLineFlag = true;
     }
@@ -114,12 +127,13 @@ int centerLineProc::getDistanceMap()
 
 }
 
-int centerLineProc::getSignedDistanceMap_Sin()
+int centerLineProc::getSignedDistanceMap_Sin(std::string filename)
 {
+    if(filename.empty())    return EXIT_FAILURE;
     typedef itk::ImageFileReader< InputImageType > ReaderType;
     typedef itk::ImageFileWriter< OutputMapType > WriterType;
     ReaderType::Pointer reader = ReaderType::New();
-    reader->SetFileName(InputfileName);
+    reader->SetFileName(filename);
     InputImageType::Pointer inImg = reader->GetOutput();
     reader->Update();
     InputImageType::SpacingType isp = inImg->GetSpacing();
@@ -128,7 +142,7 @@ int centerLineProc::getSignedDistanceMap_Sin()
     std::cout << origin[0] << " ," << origin[1] << " ," << origin[2] << std::endl;
     std::ofstream out("localmax.txt");
     if(out.is_open())
-        out << InputfileName << std::endl;
+        out << filename << std::endl;
     typedef itk::SignedDanielssonDistanceMapImageFilter<
             InputImageType,
             OutputMapType> FilterType;
@@ -200,13 +214,13 @@ int centerLineProc::getSignedDistanceMap_Sin()
 
 }
 
-int centerLineProc::getSignedDistanceMap_Mul()
+int centerLineProc::getSignedDistanceMap_Mul(std::string filename)
 {
-
+    if(filename.empty())    return EXIT_FAILURE;
     typedef itk::ImageFileReader< InputImageType > ReaderType;
     typedef itk::ImageFileWriter< OutputMapType > WriterType;
     ReaderType::Pointer reader = ReaderType::New();
-    reader->SetFileName(InputfileName);
+    reader->SetFileName(filename);
     InputImageType::Pointer inImg = reader->GetOutput();
     reader->Update();
     InputImageType::SpacingType isp = inImg->GetSpacing();
@@ -215,7 +229,7 @@ int centerLineProc::getSignedDistanceMap_Mul()
     std::cout << origin[0] << " ," << origin[1] << " ," << origin[2] << std::endl;
     std::ofstream out("localmax.txt");
     if(out.is_open())
-        out << InputfileName << std::endl;
+        out << filename << std::endl;
     typedef itk::SignedDanielssonDistanceMapImageFilter<
             InputImageType,
             OutputMapType> FilterType;
@@ -264,6 +278,7 @@ int centerLineProc::getSignedDistanceMap_Mul()
 
 void centerLineProc::Path_Thin3dImg(std::string filename)
 {
+    if(filename.empty())    return ;
     CenterPoints.clear();//remove last centerline results;
     const int Dimension = 3;
     typedef unsigned char                                   InputPixelType;
@@ -273,7 +288,9 @@ void centerLineProc::Path_Thin3dImg(std::string filename)
     typedef itk::ImageFileReader< InputImageType>           ReaderType;
     typedef itk::BinaryThinningImageFilter3D< InputImageType,OutputImageType >
                                                             ThinningFilterType;
-    typedef itk::NeighborhoodIterator<OutputImageType>      NeighborhoodIteratorType;
+//    typedef itk::NeighborhoodIterator<OutputImageType>      NeighborhoodIteratorType;
+    typedef itk::PolyLineParametricPath<Dimension>          PathType;
+    typedef itk::PathIterator<OutputImageType,PathType>     PathIteratorType;
 
     ReaderType::Pointer reader = ReaderType::New();
     reader->SetFileName(filename);
@@ -294,26 +311,26 @@ void centerLineProc::Path_Thin3dImg(std::string filename)
     output->SetSpacing( input->GetSpacing() );
     output->SetOrigin( input->GetOrigin() );
     output->Allocate( );
-    NeighborhoodIteratorType::RadiusType  radius;
-    radius[0] = 1; radius[1] = 1;radius[2] = 1;
-    OutputImageType::IndexType regionIndex;
-    regionIndex[0] = 0;regionIndex[1] = 0;regionIndex[2] = 0;
-    OutputImageType::SizeType regionSize = output->GetRequestedRegion().GetSize();
-    OutputImageType::RegionType region;
-    region.SetSize(regionSize);
-    region.SetIndex(regionIndex);
-    NeighborhoodIteratorType it(radius,output,region);
-    OutputImageType::PointType point;
-    Point3f Cenpoint;
-    for(it.GoToBegin();!it.IsAtEnd();++it){
-        if(it.GetCenterPixel() == 0)    continue;
-        OutputImageType::IndexType index;
-        index = it.GetIndex();
-        std::cout << index[0] << ", " << index[1] << ", " << index[2] << "\n";
-        output->TransformIndexToPhysicalPoint(index,point);
-        Cenpoint.x = point[0];Cenpoint.y = point[1];Cenpoint.z = point[2];
-        CenterPoints.push_back(Cenpoint);
-    }
+//    NeighborhoodIteratorType::RadiusType  radius;
+//    radius[0] = 1; radius[1] = 1;radius[2] = 1;
+//    OutputImageType::IndexType regionIndex;
+//    regionIndex[0] = 0;regionIndex[1] = 0;regionIndex[2] = 0;
+//    OutputImageType::SizeType regionSize = output->GetRequestedRegion().GetSize();
+//    OutputImageType::RegionType region;
+//    region.SetSize(regionSize);
+//    region.SetIndex(regionIndex);
+//    NeighborhoodIteratorType it(radius,output,region);
+//    OutputImageType::PointType point;
+//    Point3f Cenpoint;
+//    for(it.GoToBegin();!it.IsAtEnd();++it){
+//        if(it.GetCenterPixel() == 0)    continue;
+//        OutputImageType::IndexType index;
+//        index = it.GetIndex();
+//        std::cout << index[0] << ", " << index[1] << ", " << index[2] << "\n";
+//        output->TransformIndexToPhysicalPoint(index,point);
+//        Cenpoint.x = point[0];Cenpoint.y = point[1];Cenpoint.z = point[2];
+//        CenterPoints.push_back(Cenpoint);
+//    }
 
 
 
@@ -370,22 +387,36 @@ int centerLineProc::Path_GradientDescent(std::string filename, double ps[], doub
     ReaderType::Pointer reader = ReaderType::New();
     reader->SetFileName(filename);
     reader->Update();
-    // Distance transform
+    // step1: Distance transform
     typedef itk::SignedDanielssonDistanceMapImageFilter<
             InputImageType,
             InterImageType> FilterType;
-    FilterType::Pointer filter = FilterType::New();
-    filter->SetInput(reader->GetOutput());
-    // Rescale Distance transform to [0,1]
+    FilterType::Pointer dft = FilterType::New();
+    dft->SetInput(reader->GetOutput());
+    // step2: Rescale Distance transform to [0,1]
     typedef itk::RescaleIntensityImageFilter<
             InterImageType,InterImageType > RescalerType;
     RescalerType::Pointer scaler = RescalerType::New();
-    scaler->SetInput(filter->GetOutput());
+    scaler->SetInput(dft->GetOutput());
     scaler->SetOutputMinimum(.0);
     scaler->SetOutputMaximum(1.);
-    scaler->Update();
-    // get speed function
-    InterImageType::Pointer speed = scaler->GetOutput();
+    // step3: reverse intensity value to [1,0]
+    typedef itk::InvertIntensityImageFilter<
+            InterImageType,InterImageType> InverterType;
+    InverterType::Pointer inverter = InverterType::New();
+    inverter->SetInput(scaler->GetOutput());
+    inverter->SetMaximum(1.0);
+//    inverter->Update();
+   // step4: general threshold(only keep pixelvalue >= 0.9)
+    typedef itk::ThresholdImageFilter<
+            InterImageType> ThresholdType;
+    ThresholdType::Pointer thresholder = ThresholdType::New();
+    thresholder->SetInput(inverter->GetOutput());
+    thresholder->ThresholdBelow(0.9);
+    thresholder->SetOutsideValue(0.0);
+    thresholder->Update();
+    // get speed function(DFT --->  Rescale --->  reverse  --->  threshold)
+    InterImageType::Pointer speed = thresholder->GetOutput();
 
     // create interpolater
     typedef itk::LinearInterpolateImageFunction<InterImageType, CoordRepType>
@@ -397,10 +428,16 @@ int centerLineProc::Path_GradientDescent(std::string filename, double ps[], doub
             PathFilterType::CostFunctionType::New();
     cost->SetInterpolator(interp);
 
-    // create optimizer
+//     create optimizer
     typedef itk::GradientDescentOptimizer OptimizerType;
     OptimizerType::Pointer optimizer = OptimizerType::New();
-    optimizer->SetNumberOfIterations( 500 );
+    optimizer->SetNumberOfIterations( 1000 );
+//    typedef itk::RegularStepGradientDescentOptimizer OptimizerType;
+//    OptimizerType::Pointer optimizer = OptimizerType::New();
+//    optimizer->SetNumberOfIterations(1000);
+//    optimizer->SetMaximumStepLength(0.5);
+//    optimizer->SetMinimumStepLength(0.1);
+//    optimizer->SetRelaxationFactor(0.5);
 
     // create path filter
     PathFilterType::Pointer pathFilter = PathFilterType::New();
@@ -422,7 +459,13 @@ int centerLineProc::Path_GradientDescent(std::string filename, double ps[], doub
     pathFilter->AddPathInfo( info );
 
     // compute the path
+    std::cout << "Computing path..." << std::endl;
+    itk::TimeProbe time;
+    time.Start();
     pathFilter->Update();
+    time.Stop();
+    std::cout << std::setprecision(3) << "Path computed in: " << time.GetMeanTime()
+              << " seconds" << std::endl;
 
     // allocate output image
     OutputImageType::Pointer output = OutputImageType::New();
@@ -441,15 +484,16 @@ int centerLineProc::Path_GradientDescent(std::string filename, double ps[], doub
                       << std::endl;
             continue;
         }
+        //iterate path and convert to image
         PathIteratorType it(output, path);
         PathType::PointType point;
         Point3f Cenpoint;
         int count = 1;
         for(it.GoToBegin(); !it.IsAtEnd(); ++it){
             it.Set( itk::NumericTraits<OutputPixelType>::max() );
-            std::cout << (it.GetIndex())[0] << ", "
-                       << (it.GetIndex())[1] << ", "
-                       << (it.GetIndex())[2] << "\t\t";
+            std::cout << it.Get() << ", "<< (it.GetIndex())[0] << ", "
+                                         << (it.GetIndex())[1] << ", "
+                                         << (it.GetIndex())[2] << "\t\t";
             output->TransformIndexToPhysicalPoint(it.GetIndex(),point);
             std::cout << point[0] << ", " << point[1] << ", " << point[2] << "\n";
             Cenpoint.x = point[0];Cenpoint.y = point[1];Cenpoint.z = point[2];
