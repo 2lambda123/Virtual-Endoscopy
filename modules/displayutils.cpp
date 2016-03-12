@@ -197,6 +197,7 @@ void displayUtils::GetCenterline()
      double s[3],e[3];
      m_PointPickerInteractor->GetMarkedPoints(s,e);
      m_centerline->Path_GradientDescent(GetRawFilename(),s,e);
+//     m_centerline->Path_Thin3dImg(GetRawFilename(),s,e);
      std::cout << "complete centerline extraction!" << std::endl;
 //    m_centerline->Path_Thin3dImg("D:\\3dresearch\\heart-artery\\out\\se1ct1.mhd");
 }

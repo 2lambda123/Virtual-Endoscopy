@@ -6,6 +6,9 @@
 #include <itkImageFileWriter.h>
 #include <itkDanielssonDistanceMapImageFilter.h>
 #include <itkSignedDanielssonDistanceMapImageFilter.h>
+#include <itkSignedMaurerDistanceMapImageFilter.h>
+#include <itkSmoothingRecursiveGaussianImageFilter.h>
+#include <itkUnaryFunctorImageFilter.h>
 #include <itkRescaleIntensityImageFilter.h>
 #include <itkImageSliceConstIteratorWithIndex.h>
 #include <itkGradientMagnitudeImageFilter.h>
@@ -77,7 +80,7 @@ public:
     void ExportCenterlineData(std::string filename);
     void GetcenterlinePoint(int index, double p[3]);
     // *******************************************************
-    void Path_Thin3dImg(std::string filename);  // approach 1
+    void Path_Thin3dImg(std::string filename, double ps[], double pe[]);  // approach 1
     // ********************************************************
 
     // ******************************************************
