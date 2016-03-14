@@ -474,7 +474,13 @@ void centerLineProc::GetcenterlinePoint(int index, double p[3])
         p[2] = MinPoints[index][2];
     }
 }
-
+/**
+ * @brief centerLineProc::Path_GradientDescent
+ * @param filename: binary 3D image name
+ * @param ps: Set an given point
+ * @param pe: Set an given point
+ * @return true or false
+ */
 int centerLineProc::Path_GradientDescent(std::string filename, double ps[], double pe[])
 {
     if(filename.empty())    return EXIT_FAILURE;
@@ -531,6 +537,9 @@ int centerLineProc::Path_GradientDescent(std::string filename, double ps[], doub
             InputImageType,InterImageType> FilterType;
     FilterType::Pointer dft = FilterType::New();
     dft->SetInput(reader->GetOutput());
+    dft->SetUseImageSpacing(true);
+    dft->SetSquaredDistance(false);
+    dft->SetInsideIsPositive(true);
     typedef itk::SmoothingRecursiveGaussianImageFilter<
             InterImageType,InterImageType> SmoothType;
     SmoothType::Pointer smoother = SmoothType::New();
@@ -540,17 +549,26 @@ int centerLineProc::Path_GradientDescent(std::string filename, double ps[], doub
             InterImageType> ThresholdType;
     ThresholdType::Pointer thresholder = ThresholdType::New();
     thresholder->SetInput(smoother->GetOutput());
-    thresholder->ThresholdBelow(-10);
-    thresholder->ThresholdAbove(100);
-    thresholder->SetOutsideValue(-10);
+    thresholder->ThresholdBelow(-2);
+    thresholder->ThresholdAbove(25);
+    thresholder->SetOutsideValue(-3);
+    thresholder->Update();
     typedef itk::RescaleIntensityImageFilter<
             InterImageType,InterImageType> RescaleType;
     RescaleType::Pointer scaler = RescaleType::New();
     scaler->SetInput(thresholder->GetOutput());
     scaler->SetOutputMinimum(0.0);
     scaler->SetOutputMaximum(1.0);
-    scaler->Update();
-    InterImageType::Pointer speed = scaler->GetOutput();
+    typedef itk::SquareImageFilter<
+            InterImageType, InterImageType> SquareType;
+    SquareType::Pointer square1 = SquareType::New();
+    square1->SetInput(scaler->GetOutput());
+    SquareType::Pointer square2 = SquareType::New();
+    square2->SetInput(square1->GetOutput());
+    SquareType::Pointer square3 = SquareType::New();
+    square3->SetInput(square2->GetOutput());
+    square3->Update();
+    InterImageType::Pointer speed = square3->GetOutput();
 
 
     // create interpolater

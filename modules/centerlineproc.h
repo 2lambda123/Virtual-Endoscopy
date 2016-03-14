@@ -9,12 +9,15 @@
 #include <itkSignedMaurerDistanceMapImageFilter.h>
 #include <itkSmoothingRecursiveGaussianImageFilter.h>
 #include <itkUnaryFunctorImageFilter.h>
+#include <itkPowImageFilter.h>
+#include <itkSquareImageFilter.h>
 #include <itkRescaleIntensityImageFilter.h>
 #include <itkImageSliceConstIteratorWithIndex.h>
 #include <itkGradientMagnitudeImageFilter.h>
 #include <itkInvertIntensityImageFilter.h>
 #include <itkThresholdImageFilter.h>
 #include <itkTimeProbe.h>
+#include <itkMath.h>
 
 #include <itkNumericTraits.h>
 #include <itkPolyLineParametricPath.h>
@@ -59,6 +62,7 @@ typedef float                                                         PixelType;
 typedef unsigned short                                                VoronoiPixelType;
 typedef itk::Image< PixelType,dimension>                              OutputMapType;
 typedef itk::Image< VoronoiPixelType,dimension>                       VoronoiMapType;
+
 
 class centerLineProc
 {
