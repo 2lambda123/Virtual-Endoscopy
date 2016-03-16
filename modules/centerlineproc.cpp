@@ -559,6 +559,13 @@ int centerLineProc::Path_GradientDescent(std::string filename, double ps[], doub
     scaler->SetInput(thresholder->GetOutput());
     scaler->SetOutputMinimum(0.0);
     scaler->SetOutputMaximum(1.0);
+//    typedef itk::PowImageFilter<InterImageType,
+//            InputImageType,
+//            InterImageType> PowImageType;
+//    PowImageType::Pointer power = PowImageType::New();
+//    power->SetInput1(scaler->GetOutput());
+//    power->SetConstant2(10);
+//    power->Update();
     typedef itk::SquareImageFilter<
             InterImageType, InterImageType> SquareType;
     SquareType::Pointer square1 = SquareType::New();
@@ -567,8 +574,13 @@ int centerLineProc::Path_GradientDescent(std::string filename, double ps[], doub
     square2->SetInput(square1->GetOutput());
     SquareType::Pointer square3 = SquareType::New();
     square3->SetInput(square2->GetOutput());
-    square3->Update();
-    InterImageType::Pointer speed = square3->GetOutput();
+    SquareType::Pointer square4 = SquareType::New();
+    square4->SetInput(square3->GetOutput());
+    SquareType::Pointer square5 = SquareType::New();
+    square5->SetInput(square4->GetOutput());
+    square5->Update();
+
+    InterImageType::Pointer speed = square5->GetOutput();
 
 
     // create interpolater

@@ -6,3 +6,23 @@ a computer aided surgery system
 ### Some runtime scene:
 ![](./runtime1.bmp)
 
+centerline (determine path for virtual roaming and tumor diometer measurement):
+
+![](./result7.bmp)
+
+Virtual Roaming scene:
+
+![](./virtual-roaming.png)
+
+virtual Sclice (interactively get 2D plane at any angle):
+
+![](./virtual-slice.png)
+
+
+
+
+
+
+
+
+
