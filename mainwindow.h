@@ -29,6 +29,11 @@
 # include <vtkInteractorObserver.h>
 # include <vtkCamera.h>
 
+#include <vtkMetaImageReader.h>
+#include <vtkVolume16Reader.h>
+#include <vtkNew.h>
+#include <vtkNrrdReader.h>
+
 #include <vtkEventQtSlotConnect.h>
 //forward declaration
 class QMenu;
@@ -78,6 +83,9 @@ private:
 
     QMenu *viewMenu;
     QAction *viewdockAct;
+    QMenu *renderingMenu;
+    QAction *volRenderAct;
+    QAction *sufRenderAct;
 
     QMenu *testMenu;
     QAction *testAct;
@@ -124,6 +132,8 @@ private slots:
     void openSTL();
     void viewdockpanel(bool checked);
     void testModule();
+    void volumerendering();
+    void surfacerendering();
 
     void on_LineCbx_toggled();
     void on_ModelCbx_toggled();

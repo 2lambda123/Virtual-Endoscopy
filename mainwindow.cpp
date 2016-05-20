@@ -86,12 +86,17 @@ void MainWindow::initSmallLayout()
 
 void MainWindow::initActions()
 {
-    openSTLAct = new QAction(tr("Open 3D-Model"),this);
+    openSTLAct = new QAction(tr("&Open 3D-Model"),this);
     openSTLAct -> setShortcut(tr("Ctrl+O"));
     connect(openSTLAct,SIGNAL(triggered(bool)),this,SLOT(openSTL()));
     exitAct = new QAction(tr("&Exit..."),this);
     exitAct->setShortcut(tr("Ctrl+E"));
     connect(exitAct,SIGNAL(triggered(bool)),this,SLOT(exit()));
+
+    volRenderAct = new QAction(tr("Volume rendering"), this);
+    sufRenderAct = new QAction(tr("Surface rendering"), this);
+    connect(volRenderAct, SIGNAL(triggered(bool)), this, SLOT(volumerendering()));
+    connect(sufRenderAct, SIGNAL(triggered(bool)), this, SLOT(surfacerendering()));
     aboutAct = new QAction(tr("About..."),this);
     connect(aboutAct,SIGNAL(triggered(bool)),this,SLOT(about()));
 
@@ -116,6 +121,9 @@ void MainWindow::initMenus()
     fileMenu -> addAction(exitAct);
     procMenu = new QMenu(tr("&Process"), this);
     procMenu -> addAction(clnAct);
+    renderingMenu = new QMenu(tr("&Rendering"), this);
+    renderingMenu -> addAction(volRenderAct);
+    renderingMenu -> addAction(sufRenderAct);
     viewMenu = new QMenu(tr("&View"), this);
     viewMenu -> addAction(viewdockAct);
     helpMenu = new QMenu(tr("&Help"), this);
@@ -124,6 +132,7 @@ void MainWindow::initMenus()
     testMenu -> addAction(testAct);
     menuBar() -> addMenu(fileMenu);
     menuBar() -> addMenu(procMenu);
+    menuBar() -> addMenu(renderingMenu);
     menuBar() -> addMenu(viewMenu);
     menuBar() -> addMenu(helpMenu);
     menuBar() -> addMenu(testMenu);
@@ -314,13 +323,32 @@ void MainWindow::testModule()
 //    std::cout << " rendering completed" << std::endl;
     QElapsedTimer t;
     t.start();
-    m_mainShowUtil->GetCenterline();
+    m_mainShowUtil->GetCenterline(0);
     m_mainShowUtil->DrawCenterLine();
 //    m_mainShowUtil->TestDistanceTransform();
     QMessageBox::information(this,tr("process notify"),
            QString("test process complete "
-                      "after %1 ms").arg(t.elapsed(),0));
- }
+                   "after %1 ms").arg(t.elapsed(),0));
+}
+
+void MainWindow::volumerendering()
+{
+    QString filter("Mhd File (*.mhd)");
+    QString filename = QFileDialog::getOpenFileName(this, QString(tr("Open a mhd volume")),
+                                                    filename, filter);
+    if(filename.trimmed().isEmpty()){
+        return;
+    }
+
+    this->setWindowTitle(QString::fromUtf8("volume Renderer - ") + filename);
+    m_mainShowUtil->OpenVolumeModel(filename.toStdString());
+    UpdateRenderWindow();
+}
+
+void MainWindow::surfacerendering()
+{
+
+}
 
 void MainWindow::on_LineCbx_toggled()
 {

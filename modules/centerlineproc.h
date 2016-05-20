@@ -49,15 +49,16 @@
 #include "tools/fastdef.h"
 #include "modules/findpath/itkBinaryThinningImageFilter3D.h"
 
-//const unsigned int dimension = 3;
-//typedef unsigned char                                              InputPixelType;
-//typedef unsigned int                                             OutputPixelType;
-//typedef itk::Image< InputPixelType,dimension >                     InputImageType;
-//typedef itk::Image< OutputPixelType,dimension >                    OutputImageType;
-//typedef itk::DanielssonDistanceMapImageFilter<
-//             InputImageType,OutputImageType>                       FilterType;
-//typedef unsigned int                                               CoordType;
-//typedef itk::Point< CoordType, dimension>                           PointType;
+const unsigned int dimension = 3;
+typedef unsigned char                                              InputPixelType;
+typedef unsigned int                                               OutputPixelType;
+typedef itk::Image< InputPixelType,dimension >                     InputImageType;
+typedef itk::Image< OutputPixelType,dimension >                    OutputImageType;
+typedef itk::DanielssonDistanceMapImageFilter<
+             InputImageType,OutputImageType>                       FilterType;
+typedef unsigned int                                               CoordType;
+typedef itk::Point< CoordType, dimension>                           PointType;
+
 typedef float                                                         PixelType;
 typedef unsigned short                                                VoronoiPixelType;
 typedef itk::Image< PixelType,dimension>                              OutputMapType;
@@ -83,15 +84,21 @@ public:
     int GetCenterlinePointNums();
     void ExportCenterlineData(std::string filename);
     void GetcenterlinePoint(int index, double p[3]);
-    // *******************************************************
-    void Path_Thin3dImg(std::string filename, double ps[], double pe[]);  // approach 1
-    // ********************************************************
 
-    // ******************************************************
-    // approach 2
+    // approach 0
+    // ********************************************************
     int Path_GradientDescent(std::string filename, double ps[3], double pe[3]);
     std::vector<Point3f> CenterPoints;
     // ******************************************************
+
+    // approach 1
+    // *******************************************************
+    void Path_Thin3dImg(std::string filename, double ps[], double pe[]);
+    // ********************************************************
+
+    // approach 2
+    // **********************************************************
+    void Path_Vornoimedial(std::string filename, double ps[], double pe[]);
 private:
 
     bool CenterLineFlag;  // has centerline?

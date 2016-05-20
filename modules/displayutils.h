@@ -57,6 +57,19 @@
 
 #include <vtkSphereSource.h>
 
+//releted volume rendering
+#include <vtkPiecewiseFunction.h>
+#include <vtkColorTransferFunction.h>
+#include <vtkSmartVolumeMapper.h>
+#include <vtkVolumeProperty.h>
+#include <vtkMetaImageReader.h>
+#include <vtkVolume16Reader.h>
+#include <vtkNew.h>
+#include <vtkNrrdReader.h>
+#include <vtkImageShiftScale.h>
+#include <vtkRendererCollection.h>
+#include <vtkVolumeCollection.h>
+
 // std part
 #include <iostream>
 #include <string>
@@ -64,6 +77,8 @@
 #include <map>
 #include <vector>
 #include <utility>
+#include <memory>
+#include <cstdlib>
 
 // custom part
 #include "tools/tklib.h"
@@ -236,6 +251,7 @@ public:
     }
 
     std::string GetRawFilename();
+    void OpenVolumeModel(std::string filename);
     void OpenSegmentModel(std::string filename);
     void OpenCenterLineModel(std::string filename);
     void centerLnDis(std::vector<OutputImageType::PointType> &inpoints);
@@ -250,7 +266,7 @@ public:
 
     // centerline extraction
     void TestDistanceTransform();
-    void GetCenterline();
+    void GetCenterline(int option);
     //roaming
     void OnRoam();
     void SetRoamingStep(int step = 1);
@@ -276,7 +292,11 @@ private:
     //model
     vtkSmartPointer< vtkActor > m_stlactor;
     vtkSmartPointer< vtkActor > m_lineactor;
+    //volume
+    vtkSmartPointer< vtkVolume > m_mainvolume;
+    //centerline processing unit
     centerLineProc *m_centerline;
+
 
     bool has_stl;
     bool has_line;

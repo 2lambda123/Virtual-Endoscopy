@@ -12,14 +12,14 @@ TARGET = VirtualEndo
 TEMPLATE = app
 
 ## itk-4.8.0
-win32: LIBS += -L$$PWD/../../3rd/InsightToolkit-4.8.0/lib/
-INCLUDEPATH += $$PWD/../../3rd/InsightToolkit-4.8.0/include/ITK-4.8
-DEPENDPATH += $$PWD/../../3rd/InsightToolkit-4.8.0/include/ITK-4.8
+win32: LIBS += -L$$PWD/../../3rd/InsightToolkit-4.8.0-minSizeRel/lib/
+INCLUDEPATH += $$PWD/../../3rd/InsightToolkit-4.8.0-minSizeRel/include/ITK-4.8
+DEPENDPATH += $$PWD/../../3rd/InsightToolkit-4.8.0-minSizeRel/include/ITK-4.8
 
 ## vtk-6.3.0
-win32: LIBS += -L$$PWD/../../3rd/VTK-6.3.0/lib/
-INCLUDEPATH += $$PWD/../../3rd/VTK-6.3.0/include/vtk-6.3
-DEPENDPATH += $$PWD/../../3rd/VTK-6.3.0/include/vtk-6.3
+win32: LIBS += -L$$PWD/../../3rd/VTK-6.3.0-minSizeRel/lib/
+INCLUDEPATH += $$PWD/../../3rd/VTK-6.3.0-minSizeRel/include/vtk-6.3
+DEPENDPATH += $$PWD/../../3rd/VTK-6.3.0-minSizeRel/include/vtk-6.3
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -33,7 +33,8 @@ SOURCES += main.cpp\
     modules/findpath/approach2/itkIterateNeighborhoodOptimizer.txx \
     modules/findpath/approach2/itkPhysicalCentralDifferenceImageFunction.txx \
     modules/findpath/approach2/itkSingleImageCostFunction.txx \
-    modules/findpath/approach2/itkSpeedFunctionToPathFilter.txx
+    modules/findpath/approach2/itkSpeedFunctionToPathFilter.txx \
+    modules/segment/sliceshowutils.cpp
 
 HEADERS  += mainwindow.h \
     tools/fastdef.h \
@@ -53,7 +54,10 @@ HEADERS  += mainwindow.h \
     modules/findpath/approach2/itkIterateNeighborhoodOptimizer.h \
     modules/findpath/approach2/itkPhysicalCentralDifferenceImageFunction.h \
     modules/findpath/approach2/itkSingleImageCostFunction.h \
-    modules/findpath/approach2/itkSpeedFunctionToPathFilter.h
+    modules/findpath/approach2/itkSpeedFunctionToPathFilter.h \
+    Test/testregiongrow.h \
+    modules/segment/sliceshowutils.h \
+    tools/itkvtkpipe.h
 
 FORMS    += mainwindow.ui
 

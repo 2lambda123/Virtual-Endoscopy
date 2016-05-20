@@ -48,6 +48,60 @@ std::string displayUtils::GetRawFilename()
     return m_filename.second;
 }
 
+void displayUtils::OpenVolumeModel(std::string filename)
+{
+    Instantiate(reader, vtkMetaImageReader);
+    reader -> SetFileName(filename.c_str());
+    Instantiate(shiftscale, vtkImageShiftScale);
+    // scale the volume data to unsigned char (0-255) before passing it to volume mapper
+    shiftscale -> SetInputConnection(reader->GetOutputPort());
+    shiftscale -> SetOutputScalarTypeToUnsignedChar();
+    // Create transfer mapping scalar value to opacity.
+    Instantiate(opacityTransferFunction, vtkPiecewiseFunction);
+    opacityTransferFunction -> AddPoint(0.0, 0.0);
+    opacityTransferFunction -> AddPoint(36.0, 0.125);
+    opacityTransferFunction -> AddPoint(72.0, 0.25);
+    opacityTransferFunction -> AddPoint(108.0, 0.375);
+    opacityTransferFunction -> AddPoint(144.0, 0.5);
+    opacityTransferFunction -> AddPoint(180.0, 0.625);
+    opacityTransferFunction -> AddPoint(216.0, 0.75);
+    opacityTransferFunction -> AddPoint(255.0, 0.875);
+
+    // Create transfer mapping scalar value to color.
+    Instantiate(colorTransferFunction, vtkColorTransferFunction);
+    colorTransferFunction->AddRGBPoint(0.0, 0.0, 0.0, 0.0);
+    colorTransferFunction->AddRGBPoint(36.0, 1.0, 0.0, 0.0);
+    colorTransferFunction->AddRGBPoint(72.0, 1.0, 1.0, 0.0);
+    colorTransferFunction->AddRGBPoint(108.0, 0.0, 1.0, 0.0);
+    colorTransferFunction->AddRGBPoint(144.0, 0.0, 1.0, 1.0);
+    colorTransferFunction->AddRGBPoint(180.0, 0.0, 0.0, 1.0);
+    colorTransferFunction->AddRGBPoint(216.0, 1.0, 0.0, 1.0);
+    colorTransferFunction->AddRGBPoint(255.0, 1.0, 1.0, 1.0);
+    // set up volume property
+    Instantiate(volumeProperty, vtkVolumeProperty);
+    volumeProperty->SetColor(colorTransferFunction);
+    volumeProperty->SetScalarOpacity(opacityTransferFunction);
+    volumeProperty->ShadeOff();
+    volumeProperty->SetInterpolationTypeToLinear();
+    // set up mapper that renders the volume data.
+    Instantiate(volumeMapper, vtkSmartVolumeMapper);
+    volumeMapper->SetRequestedRenderMode(vtkSmartVolumeMapper::GPURenderMode);
+    volumeMapper->SetInputConnection(shiftscale->GetOutputPort());
+
+    m_mainvolume = vtkSmartPointer<vtkVolume>::New();
+    m_mainvolume -> SetMapper(volumeMapper);
+    m_mainvolume -> SetProperty(volumeProperty);
+
+    // clear other current actor on renderer;
+    SetMainModelOff();
+    SetLineModelOff();
+    m_renderer -> Clear();
+    m_renderer -> AddVolume(m_mainvolume);
+
+
+
+}
+
 void displayUtils::OpenSegmentModel(std::string filename)
 {
     //prepare input name(.stl and .mhd)
@@ -59,26 +113,27 @@ void displayUtils::OpenSegmentModel(std::string filename)
     reader -> SetFileName(filename.c_str());
     reader -> Update();
 //  *****************add texture for model********************
-    Instantiate(tmapper,vtkTextureMapToSphere);
-    tmapper -> SetInputConnection(reader -> GetOutputPort());
-//    tmapper -> PreventSeamOn();
-    Instantiate(xform,vtkTransformTextureCoords);
-    xform -> SetInputConnection(tmapper->GetOutputPort());
-    xform -> SetScale(4,4,1);
-    Instantiate(jpgreader,vtkJPEGReader);
-    jpgreader -> SetFileName("D:\\3dresearch\\QtItkVtk\\test\\VirtualEndo\\res\\texture2.jpg");
-    jpgreader -> Update();
-    Instantiate(texture,vtkTexture);
-    texture -> SetInputConnection(jpgreader->GetOutputPort());
-    texture -> InterpolateOn();
+//    Instantiate(tmapper,vtkTextureMapToSphere);
+//    tmapper -> SetInputConnection(reader -> GetOutputPort());
+// //    tmapper -> PreventSeamOn();
+//    Instantiate(xform,vtkTransformTextureCoords);
+//    xform -> SetInputConnection(tmapper->GetOutputPort());
+//    xform -> SetScale(4,4,1);
+//    Instantiate(jpgreader,vtkJPEGReader);
+//    jpgreader -> SetFileName("D:\\3dresearch\\QtItkVtk\\test\\VirtualEndo\\res\\texture2.jpg");
+//    jpgreader -> Update();
+//    Instantiate(texture,vtkTexture);
+//    texture -> SetInputConnection(jpgreader->GetOutputPort());
+//    texture -> InterpolateOn();
 //  ************************************************************
 
 
     //build connection
     Instantiate(mapper,vtkPolyDataMapper);
-    mapper -> SetInputConnection(xform -> GetOutputPort());
+    mapper -> SetInputConnection(reader->GetOutputPort());
+//    mapper -> SetInputConnection(xform -> GetOutputPort());
     m_stlactor -> SetMapper(mapper);
-    m_stlactor -> SetTexture(texture);
+//    m_stlactor -> SetTexture(texture);
  //   m_stlactor->GetProperty()->SetColor(1., .0, .0);
     sliderWidget->EnabledOn();
     has_stl = true;
@@ -192,14 +247,19 @@ void displayUtils::TestDistanceTransform()
     m_centerline->getDistanceMap(GetRawFilename());
 }
 
-void displayUtils::GetCenterline()
+void displayUtils::GetCenterline(int option)
 {
      double s[3],e[3];
      m_PointPickerInteractor->GetMarkedPoints(s,e);
-     m_centerline->Path_GradientDescent(GetRawFilename(),s,e);
-//     m_centerline->Path_Thin3dImg(GetRawFilename(),s,e);
+     int tmp = option % 3;
+     if(tmp == 0){
+         m_centerline->Path_GradientDescent(GetRawFilename(),s,e);
+     }else if(tmp == 1){
+         m_centerline->Path_Thin3dImg(GetRawFilename(),s,e);
+     }else{
+         m_centerline->Path_Vornoimedial(GetRawFilename(),s,e);
+     }
      std::cout << "complete centerline extraction!" << std::endl;
-//    m_centerline->Path_Thin3dImg("D:\\3dresearch\\heart-artery\\out\\se1ct1.mhd");
 }
 
 

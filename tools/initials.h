@@ -9,7 +9,7 @@ VTK_MODULE_INIT(vtkRenderingOpenGL);
 VTK_MODULE_INIT(vtkInteractionStyle);
 VTK_MODULE_INIT(vtkRenderingFreeType);
 //VTK_MODULE_INIT(vtkRenderingFreeTypeOpenGL);
-
+VTK_MODULE_INIT(vtkRenderingVolumeOpenGL);
 /// additional libs
 #pragma comment(lib, "snmpapi.lib")
 #pragma comment(lib, "rpcrt4.lib")

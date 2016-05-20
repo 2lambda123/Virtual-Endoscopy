@@ -445,6 +445,12 @@ void centerLineProc::Path_Thin3dImg(std::string filename, double ps[], double pe
 
 }
 
+void centerLineProc::Path_Vornoimedial(std::string filename, double ps[], double pe[])
+{
+
+
+}
+
 
 int centerLineProc::GetCenterlinePointNums()
 {
